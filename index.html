@@ -1,200 +1,34 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pizza Craft Classic - レトロなFlashゲーム風ピザ生地伸ばしゲーム">
-    <title>Pizza Craft Classic</title>
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pizza Craft Classic</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- タイトル画面 -->
-    <section id="titleScreen" class="screen active">
+<div class="container">
 
-        <div class="title-panel">
+  <h1>PIZZA CRAFT CLASSIC</h1>
 
-            <h1 class="game-title">
-                PIZZA CRAFT CLASSIC
-            </h1>
+  <div class="hud">
+    <span>TIME: <span id="time">30</span></span>
+    <span>SCORE: <span id="score">0</span></span>
+  </div>
 
-            <p class="tagline">
-                ～ 伝説の生地職人を目指せ！ ～
-            </p>
+  <div class="character">
+    🍕👨‍🍳
+    <p id="message">STARTを押してね！</p>
+  </div>
 
-            <div class="mascot-area">
+  <button id="startBtn">START</button>
 
-                <div class="mascot">
-                    <div class="chef-hat"></div>
-                    <div class="face">
-                        <span class="eye"></span>
-                        <span class="eye"></span>
-                    </div>
-                    <div class="mouth"></div>
-                </div>
+  <canvas id="canvas" width="800" height="500"></canvas>
 
-                <div class="speech">
-                    ようこそ！<br>
-                    生地をできるだけ大きく、丸く伸ばそう！
-                </div>
+</div>
 
-            </div>
-
-            <button id="startButton" class="retro-button">
-                START GAME
-            </button>
-
-            <div class="best-score-box">
-                BEST SCORE
-                <span id="bestScore">
-                    ---
-                </span>
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- ゲーム画面 -->
-    <section id="gameScreen" class="screen">
-
-        <div class="game-wrapper">
-
-            <header class="hud">
-
-                <div class="hud-item">
-                    TIME
-                    <span id="timeValue">30</span>
-                </div>
-
-                <div class="hud-item">
-                    SCORE
-                    <span id="scoreValue">0</span>
-                </div>
-
-            </header>
-
-            <div class="game-layout">
-
-                <aside class="coach-panel">
-
-                    <div class="mascot small">
-
-                        <div class="chef-hat"></div>
-
-                        <div class="face">
-                            <span class="eye"></span>
-                            <span class="eye"></span>
-                        </div>
-
-                        <div class="mouth"></div>
-
-                    </div>
-
-                    <div id="coachMessage" class="speech">
-                        優しく引っ張るんだ！
-                    </div>
-
-                </aside>
-
-                <main class="game-area">
-
-                    <canvas
-                        id="gameCanvas"
-                        width="800"
-                        height="500">
-                    </canvas>
-
-                    <div id="comboText" class="combo-text">
-                        NICE!
-                    </div>
-
-                </main>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- リザルト画面 -->
-    <section id="resultScreen" class="screen">
-
-        <div class="result-panel">
-
-            <h2>RESULT</h2>
-
-            <div class="result-grid">
-
-                <div>サイズ</div>
-                <div id="resultSize">0</div>
-
-                <div>円形度</div>
-                <div id="resultRoundness">0%</div>
-
-                <div>職人技</div>
-                <div id="resultSkill">0</div>
-
-            </div>
-
-            <div class="final-score">
-
-                FINAL SCORE
-
-                <div id="finalScore">
-                    0
-                </div>
-
-            </div>
-
-            <div id="rankStars" class="stars">
-                ★★★★★
-            </div>
-
-            <div id="rankName" class="rank-name">
-                MASTER CHEF
-            </div>
-
-            <div class="result-message">
-
-                <div class="mascot-area">
-
-                    <div class="mascot">
-
-                        <div class="chef-hat"></div>
-
-                        <div class="face">
-                            <span class="eye"></span>
-                            <span class="eye"></span>
-                        </div>
-
-                        <div class="mouth"></div>
-
-                    </div>
-
-                    <div id="resultComment" class="speech">
-                        素晴らしい仕事だ！
-                    </div>
-
-                </div>
-
-            </div>
-
-            <button id="playAgainButton" class="retro-button">
-                PLAY AGAIN
-            </button>
-
-        </div>
-
-    </section>
-
-    <!-- フッター -->
-    <footer class="site-footer">
-        Pizza Craft Classic © 2026
-    </footer>
-
-    <script src="script.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>

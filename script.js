@@ -1,523 +1,127 @@
-const titleScreen = document.getElementById("titleScreen");
-const gameScreen = document.getElementById("gameScreen");
-const resultScreen = document.getElementById("resultScreen");
-
-const startButton = document.getElementById("startButton");
-const playAgainButton = document.getElementById("playAgainButton");
-
-const timeValue = document.getElementById("timeValue");
-const scoreValue = document.getElementById("scoreValue");
-
-const bestScoreEl = document.getElementById("bestScore");
-
-const coachMessage = document.getElementById("coachMessage");
-const comboText = document.getElementById("comboText");
-
-const resultSize = document.getElementById("resultSize");
-const resultRoundness = document.getElementById("resultRoundness");
-const resultSkill = document.getElementById("resultSkill");
-
-const finalScoreEl = document.getElementById("finalScore");
-const rankName = document.getElementById("rankName");
-const rankStars = document.getElementById("rankStars");
-const resultComment = document.getElementById("resultComment");
-
-const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-/* =====================
-   ハイスコア
-===================== */
+const startBtn = document.getElementById("startBtn");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const msgEl = document.getElementById("message");
 
-const best = Number(localStorage.getItem("pizzaBest") || 0);
-bestScoreEl.textContent = best || "---";
+let running = false;
+let timer;
 
-/* =====================
-   ゲーム状態
-===================== */
+let radius = 70;
+let score = 0;
+let time = 30;
 
-let gameTimer;
-let playing = false;
+let drag = false;
 
-let radius;
-let stretchX;
-let stretchY;
+const cx = canvas.width/2;
+const cy = canvas.height/2;
 
-let score;
-let time;
+function draw(){
 
-let dragging = false;
-let combo = 0;
+  ctx.clearRect(
+    0,0,
+    canvas.width,
+    canvas.height
+  );
 
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
+  ctx.beginPath();
 
-/* =====================
-   メッセージ
-===================== */
+  ctx.arc(
+    cx,
+    cy,
+    radius,
+    0,
+    Math.PI*2
+  );
 
-const messages = [
-    "もっと丸く伸ばそう！",
-    "その調子だ！",
-    "焦らず丁寧に！",
-    "職人魂を見せてくれ！",
-    "きれいな円を目指そう！"
-];
+  ctx.fillStyle="#f4d37d";
+  ctx.fill();
 
-const combos = [
-    "NICE!",
-    "GOOD!",
-    "GREAT!",
-    "AWESOME!",
-    "PERFECT!"
-];
+  ctx.strokeStyle="#c98d35";
+  ctx.lineWidth=5;
+  ctx.stroke();
 
-function randomMessage() {
-
-    coachMessage.innerHTML =
-        messages[
-            Math.floor(Math.random() * messages.length)
-        ];
+  if(running){
+    requestAnimationFrame(draw);
+  }
 }
 
-/* =====================
-   初期化
-===================== */
+startBtn.addEventListener("click",()=>{
 
-function resetGame() {
+  if(running){
+    return;
+  }
 
-    radius = 70;
+  running=true;
 
-    stretchX = 1;
-    stretchY = 1;
+  radius=70;
+  score=0;
+  time=30;
 
-    score = 0;
-    combo = 0;
+  scoreEl.textContent=0;
+  timeEl.textContent=30;
 
-    time = 30;
+  msgEl.textContent=
+    "ドラッグして生地を伸ばそう！";
 
-    scoreValue.textContent = "0";
-    timeValue.textContent = "30";
-}
+  draw();
 
-/* =====================
-   画面切り替え
-===================== */
+  timer=setInterval(()=>{
 
-function showScreen(screen) {
+    time--;
 
-    titleScreen.classList.remove("active");
-    gameScreen.classList.remove("active");
-    resultScreen.classList.remove("active");
+    timeEl.textContent=time;
 
-    screen.classList.add("active");
-}
+    if(time<=0){
 
-/* =====================
-   開始
-===================== */
+      clearInterval(timer);
 
-startButton.addEventListener("click", startGame);
+      running=false;
 
-function startGame() {
+      const finalScore =
+        Math.round(radius*2);
 
-    resetGame();
-
-    showScreen(gameScreen);
-
-    playing = true;
-
-    gameTimer = setInterval(() => {
-
-        time--;
-
-        timeValue.textContent = time;
-
-        if (time % 5 === 0) {
-            randomMessage();
-        }
-
-        if (time <= 0) {
-            endGame();
-        }
-
-    }, 1000);
-
-    requestAnimationFrame(loop);
-}
-
-/* =====================
-   入力
-===================== */
-
-function pointerPosition(e) {
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-    if (e.touches) {
-
-        return {
-
-            x:
-                (e.touches[0].clientX - rect.left)
-                * (canvas.width / rect.width),
-
-            y:
-                (e.touches[0].clientY - rect.top)
-                * (canvas.height / rect.height)
-
-        };
-    }
-
-    return {
-
-        x:
-            (e.clientX - rect.left)
-            * (canvas.width / rect.width),
-
-        y:
-            (e.clientY - rect.top)
-            * (canvas.height / rect.height)
-
-    };
-}
-
-function stretchDough(e) {
-
-    if (!dragging || !playing) {
-        return;
-    }
-
-    const pos = pointerPosition(e);
-
-    const dx = pos.x - centerX;
-    const dy = pos.y - centerY;
-
-    stretchX += dx * 0.00045;
-    stretchY += dy * 0.00045;
-
-    stretchX =
-        Math.max(0.65,
-            Math.min(2.0, stretchX));
-
-    stretchY =
-        Math.max(0.65,
-            Math.min(2.0, stretchY));
-
-    radius += 0.35;
-
-    score += 1;
-
-    combo++;
-
-    scoreValue.textContent = score;
-
-    if (combo % 20 === 0) {
-
-        showCombo(
-            combos[
-                Math.min(
-                    4,
-                    Math.floor(combo / 20)
-                )
-            ]
-        );
-    }
-}
-
-canvas.addEventListener("mousedown",
-    () => dragging = true);
-
-canvas.addEventListener("mouseup",
-    () => dragging = false);
-
-canvas.addEventListener("mouseleave",
-    () => dragging = false);
-
-canvas.addEventListener(
-    "mousemove",
-    stretchDough
-);
-
-canvas.addEventListener(
-    "touchstart",
-    () => dragging = true,
-    { passive: true }
-);
-
-canvas.addEventListener(
-    "touchend",
-    () => dragging = false
-);
-
-canvas.addEventListener(
-    "touchmove",
-    stretchDough,
-    { passive: true }
-);
-
-/* =====================
-   コンボ表示
-===================== */
-
-function showCombo(text) {
-
-    comboText.textContent = text;
-
-    comboText.style.opacity = 1;
-
-    comboText.animate(
-        [
-            {
-                transform:
-                    "translateX(-50%) scale(0.8)",
-                opacity: 0
-            },
-            {
-                transform:
-                    "translateX(-50%) scale(1.3)",
-                opacity: 1
-            },
-            {
-                transform:
-                    "translateX(-50%) scale(1)",
-                opacity: 0
-            }
-        ],
-        {
-            duration: 1000
-        }
-    );
-
-    setTimeout(() => {
-        comboText.style.opacity = 0;
-    }, 1000);
-}
-
-/* =====================
-   描画
-===================== */
-
-function drawDough() {
-
-    ctx.save();
-
-    ctx.translate(centerX, centerY);
-
-    ctx.scale(stretchX, stretchY);
-
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        0,
-        radius,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fillStyle = "#f4d37d";
-    ctx.fill();
-
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "#c58a2d";
-    ctx.stroke();
-
-    ctx.restore();
-
-    stretchX *= 0.995;
-    stretchY *= 0.995;
-}
-
-function drawShadow() {
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        centerX,
-        centerY + radius + 15,
-        radius * 0.9,
-        radius * 0.2,
-        0,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fillStyle =
-        "rgba(0,0,0,.08)";
-
-    ctx.fill();
-}
-
-function loop() {
-
-    if (!playing) {
-        return;
-    }
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    drawShadow();
-    drawDough();
-
-    requestAnimationFrame(loop);
-}
-
-/* =====================
-   終了
-===================== */
-
-function endGame() {
-
-    clearInterval(gameTimer);
-
-    playing = false;
-
-    const sizeScore =
-        Math.round(radius * 2);
-
-    const roundness =
-        Math.max(
-            0,
-            Math.round(
-                100 -
-                Math.abs(
-                    stretchX -
-                    stretchY
-                ) * 100
-            )
-        );
-
-    const skillScore =
-        Math.round(
-            (sizeScore + roundness) / 2
-        );
-
-    const finalScore =
-        Math.max(
-            0,
-            Math.round(
-                sizeScore +
-                roundness +
-                skillScore
-            )
-        );
-
-    resultSize.textContent =
-        sizeScore;
-
-    resultRoundness.textContent =
-        roundness + "%";
-
-    resultSkill.textContent =
-        skillScore;
-
-    finalScoreEl.textContent =
+      msgEl.textContent=
+        "終了！ SCORE " +
         finalScore;
 
-    setRank(finalScore);
-
-    const currentBest =
-        Number(
-            localStorage.getItem("pizzaBest") || 0
-        );
-
-    if (finalScore > currentBest) {
-
-        localStorage.setItem(
-            "pizzaBest",
-            finalScore
-        );
-
-        bestScoreEl.textContent =
-            finalScore;
+      scoreEl.textContent=
+        finalScore;
     }
 
-    showScreen(resultScreen);
-}
+  },1000);
 
-/* =====================
-   ランク
-===================== */
+});
 
-function setRank(score) {
+canvas.addEventListener(
+  "mousedown",
+  ()=>drag=true
+);
 
-    if (score >= 420) {
+canvas.addEventListener(
+  "mouseup",
+  ()=>drag=false
+);
 
-        rankName.textContent =
-            "PIZZA LEGEND";
+canvas.addEventListener(
+  "mouseleave",
+  ()=>drag=false
+);
 
-        rankStars.textContent =
-            "★★★★★";
+canvas.addEventListener(
+  "mousemove",
+  ()=>{
 
-        resultComment.innerHTML =
-            "伝説級だ！生地が歓声を上げている！";
-
-    } else if (score >= 360) {
-
-        rankName.textContent =
-            "MASTER CHEF";
-
-        rankStars.textContent =
-            "★★★★★";
-
-        resultComment.innerHTML =
-            "素晴らしい仕事だ！";
-
-    } else if (score >= 300) {
-
-        rankName.textContent =
-            "EXPERT";
-
-        rankStars.textContent =
-            "★★★★☆";
-
-        resultComment.innerHTML =
-            "かなり腕がいいぞ！";
-
-    } else if (score >= 230) {
-
-        rankName.textContent =
-            "APPRENTICE";
-
-        rankStars.textContent =
-            "★★★☆☆";
-
-        resultComment.innerHTML =
-            "もう少しで一人前だ！";
-
-    } else {
-
-        rankName.textContent =
-            "KEEP PRACTICING";
-
-        rankStars.textContent =
-            "★★☆☆☆";
-
-        resultComment.innerHTML =
-            "焦らず練習しよう！";
+    if(!drag || !running){
+      return;
     }
-}
 
-/* =====================
-   リプレイ
-===================== */
+    radius += 0.5;
+    score++;
 
-playAgainButton.addEventListener(
-    "click",
-    () => {
-
-        showScreen(titleScreen);
-
-        bestScoreEl.textContent =
-            localStorage.getItem(
-                "pizzaBest"
-            ) || "---";
-    }
+    scoreEl.textContent=
+      score;
+  }
 );
