@@ -1,127 +1,262 @@
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas =
+    document.getElementById("canvas");
 
-const startBtn = document.getElementById("startBtn");
-const scoreEl = document.getElementById("score");
-const timeEl = document.getElementById("time");
-const msgEl = document.getElementById("message");
+const ctx =
+    canvas.getContext("2d");
+
+const startBtn =
+    document.getElementById("startBtn");
+
+const scoreEl =
+    document.getElementById("score");
+
+const timeEl =
+    document.getElementById("time");
+
+const msgEl =
+    document.getElementById("message");
+
+const bestScoreEl =
+    document.getElementById("bestScore");
 
 let running = false;
-let timer;
 
 let radius = 70;
 let score = 0;
 let time = 30;
 
-let drag = false;
+let timer = null;
 
-const cx = canvas.width/2;
-const cy = canvas.height/2;
+let dragging = false;
 
-function draw(){
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
 
-  ctx.clearRect(
-    0,0,
-    canvas.width,
-    canvas.height
-  );
+const messages = [
+    "もっと大きく！",
+    "その調子だ！",
+    "いい仕事だ！",
+    "丸く伸ばそう！",
+    "あと少し！"
+];
 
-  ctx.beginPath();
+function loadBestScore(){
 
-  ctx.arc(
-    cx,
-    cy,
-    radius,
-    0,
-    Math.PI*2
-  );
+    const best =
+        localStorage.getItem(
+            "pizzaBest"
+        );
 
-  ctx.fillStyle="#f4d37d";
-  ctx.fill();
-
-  ctx.strokeStyle="#c98d35";
-  ctx.lineWidth=5;
-  ctx.stroke();
-
-  if(running){
-    requestAnimationFrame(draw);
-  }
+    if(best){
+        bestScoreEl.textContent =
+            best;
+    }else{
+        bestScoreEl.textContent =
+            "---";
+    }
 }
 
-startBtn.addEventListener("click",()=>{
+loadBestScore();
 
-  if(running){
-    return;
-  }
+function drawDough(){
 
-  running=true;
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-  radius=70;
-  score=0;
-  time=30;
+    ctx.beginPath();
 
-  scoreEl.textContent=0;
-  timeEl.textContent=30;
+    ctx.arc(
+        cx,
+        cy,
+        radius,
+        0,
+        Math.PI * 2
+    );
 
-  msgEl.textContent=
-    "ドラッグして生地を伸ばそう！";
+    ctx.fillStyle="#f4d37d";
+    ctx.fill();
 
-  draw();
+    ctx.strokeStyle="#ba8336";
+    ctx.lineWidth=6;
+    ctx.stroke();
 
-  timer=setInterval(()=>{
+    if(running){
+        requestAnimationFrame(
+            drawDough
+        );
+    }
+}
 
-    time--;
+function randomMessage(){
 
-    timeEl.textContent=time;
+    msgEl.textContent =
+        messages[
+            Math.floor(
+                Math.random() *
+                messages.length
+            )
+        ];
+}
 
-    if(time<=0){
+startBtn.addEventListener(
+    "click",
+    startGame
+);
 
-      clearInterval(timer);
+function startGame(){
 
-      running=false;
-
-      const finalScore =
-        Math.round(radius*2);
-
-      msgEl.textContent=
-        "終了！ SCORE " +
-        finalScore;
-
-      scoreEl.textContent=
-        finalScore;
+    if(running){
+        return;
     }
 
-  },1000);
+    radius = 70;
+    score = 0;
+    time = 30;
 
-});
+    running = true;
 
-canvas.addEventListener(
-  "mousedown",
-  ()=>drag=true
-);
+    startBtn.disabled = true;
 
-canvas.addEventListener(
-  "mouseup",
-  ()=>drag=false
-);
+    startBtn.textContent =
+        "PLAYING...";
 
-canvas.addEventListener(
-  "mouseleave",
-  ()=>drag=false
-);
+    scoreEl.textContent = 0;
+    timeEl.textContent = 30;
 
-canvas.addEventListener(
-  "mousemove",
-  ()=>{
+    msgEl.textContent =
+        "ドラッグで生地を伸ばそう！";
 
-    if(!drag || !running){
-      return;
+    drawDough();
+
+    timer = setInterval(()=>{
+
+        time--;
+
+        timeEl.textContent =
+            time;
+
+        if(time % 5 === 0){
+            randomMessage();
+        }
+
+        if(time <= 0){
+            endGame();
+        }
+
+    },1000);
+}
+
+function endGame(){
+
+    running = false;
+
+    clearInterval(timer);
+
+    const finalScore =
+        Math.round(radius * 2);
+
+    let rank = "";
+
+    if(finalScore >= 340){
+
+        rank =
+            "PIZZA LEGEND";
+
+    }else if(finalScore >= 280){
+
+        rank =
+            "MASTER CHEF";
+
+    }else if(finalScore >= 220){
+
+        rank =
+            "EXPERT";
+
+    }else{
+
+        rank =
+            "BEGINNER";
     }
 
-    radius += 0.5;
-    score++;
+    msgEl.innerHTML =
+        `
+        SCORE : ${finalScore}
+        <br>
+        <span class="rank">
+        ${rank}
+        </span>
+        `;
 
-    scoreEl.textContent=
-      score;
-  }
+    scoreEl.textContent =
+        finalScore;
+
+    const best =
+        Number(
+            localStorage.getItem(
+                "pizzaBest"
+            ) || 0
+        );
+
+    if(finalScore > best){
+
+        localStorage.setItem(
+            "pizzaBest",
+            finalScore
+        );
+
+        loadBestScore();
+    }
+
+    startBtn.disabled = false;
+    startBtn.textContent =
+        "PLAY AGAIN";
+}
+
+canvas.addEventListener(
+    "pointerdown",
+    ()=>{
+        dragging = true;
+    }
+);
+
+canvas.addEventListener(
+    "pointerup",
+    ()=>{
+        dragging = false;
+    }
+);
+
+canvas.addEventListener(
+    "pointerleave",
+    ()=>{
+        dragging = false;
+    }
+);
+
+canvas.addEventListener(
+    "pointermove",
+    ()=>{
+
+        if(
+            !running ||
+            !dragging
+        ){
+            return;
+        }
+
+        radius += 0.45;
+
+        if(radius > 170){
+            radius = 170;
+        }
+
+        score++;
+
+        scoreEl.textContent =
+            score;
+    }
 );
