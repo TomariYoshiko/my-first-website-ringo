@@ -2,48 +2,47 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pizza Workshop Classic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizza Toss Classic</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="gameArea">
+<div class="hud">
 
-    <header class="hud">
-
-        <div class="box">
-            TIME
-            <span id="time">30</span>
-        </div>
-
-        <div class="box">
-            COMPLETED
-            <span id="count">0</span>
-        </div>
-
-    </header>
-
-    <div class="character">
-
-        <div class="chef">👨‍🍳</div>
-
-        <div id="message">
-            STARTを押してゲーム開始！
-        </div>
-
+    <div>
+        TIME
+        <span id="time">60</span>
     </div>
 
-    <button id="startBtn">
-        START
-    </button>
-
-    <canvas
-        id="canvas"
-        width="900"
-        height="500"></canvas>
+    <div>
+        PIZZAS
+        <span id="pizzas">0</span>
+    </div>
 
 </div>
+
+<div class="message" id="message">
+    STARTを押そう！
+</div>
+
+<button id="startBtn">
+    START
+</button>
+
+<div class="power-area">
+
+    <div class="power-bar">
+        <div id="powerFill"></div>
+    </div>
+
+</div>
+
+<canvas
+    id="gameCanvas"
+    width="900"
+    height="500">
+</canvas>
 
 <div id="resultScreen" class="hidden">
 
@@ -51,7 +50,9 @@
 
     <p>完成したピザ</p>
 
-    <div id="finalCount">0</div>
+    <div id="resultCount">
+        0
+    </div>
 
     <button id="retryBtn">
         RETRY
@@ -60,5 +61,6 @@
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>

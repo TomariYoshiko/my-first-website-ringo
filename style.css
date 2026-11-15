@@ -1,7 +1,3 @@
-*{
-    box-sizing:border-box;
-}
-
 body{
 
     margin:0;
@@ -10,94 +6,109 @@ body{
         Arial,
         sans-serif;
 
-    background:
-        linear-gradient(
-            #18467f,
-            #0e2748
-        );
+    text-align:center;
 
     color:white;
 
-    text-align:center;
+    background:
+        linear-gradient(
+            #17467e,
+            #0d2748
+        );
 }
 
 .hud{
 
     display:flex;
 
-    gap:20px;
+    justify-content:space-around;
 
     padding:20px;
+
+    font-size:24px;
 }
 
-.box{
-
-    flex:1;
-
-    background:
-        rgba(255,255,255,.15);
-
-    border-radius:12px;
-
-    padding:15px;
-}
-
-.box span{
+.hud span{
 
     display:block;
 
-    margin-top:10px;
+    color:#ffd54d;
 
-    font-size:40px;
-
-    color:#ffd44d;
+    font-size:42px;
 }
 
-.character{
+.message{
 
-    margin-bottom:15px;
-}
+    margin:10px;
 
-.chef{
-
-    font-size:90px;
-}
-
-#message{
-
-    font-size:20px;
+    font-size:24px;
 
     font-weight:bold;
 }
 
 button{
 
-    margin:10px;
-
     padding:12px 30px;
+
+    font-size:18px;
+
+    margin-bottom:20px;
 
     border:none;
 
     border-radius:10px;
 
+    background:#ffd54d;
+
     cursor:pointer;
+}
 
-    background:#ffd44d;
+.power-area{
 
-    font-weight:bold;
+    width:400px;
+
+    max-width:90%;
+
+    margin:0 auto 15px;
+}
+
+.power-bar{
+
+    height:24px;
+
+    background:#ddd;
+
+    border-radius:12px;
+
+    overflow:hidden;
+}
+
+#powerFill{
+
+    height:100%;
+
+    width:0%;
+
+    background:
+        linear-gradient(
+            to right,
+            #2ecc71,
+            #f1c40f,
+            #e74c3c
+        );
 }
 
 canvas{
 
-    width:95%;
+    background:#fff3c8;
+
+    width:90%;
 
     max-width:900px;
 
     border:5px solid white;
 
-    border-radius:10px;
-
-    background:#fff2c0;
+    border-radius:12px;
 }
 
 .hidden{
@@ -106,52 +117,12 @@ canvas{
 
 #resultScreen{
 
-    padding-top:80px;
+    margin-top:50px;
 }
 
-#finalCount{
+#resultCount{
 
-    font-size:120px;
+    font-size:100px;
 
-    color:#ffd44d;
-
-    font-weight:bold;
-}
-
-.warning{
-
-    animation:
-        warningFlash .4s infinite;
-}
-
-@keyframes warningFlash{
-
-    0%{
-        background:#18467f;
-    }
-
-    50%{
-        background:#8d1111;
-    }
-
-    100%{
-        background:#18467f;
-    }
-}
-
-.judge{
-
-    position:absolute;
-
-    left:50%;
-
-    top:240px;
-
-    transform:translateX(-50%);
-
-    font-size:60px;
-
-    font-weight:bold;
-
-    pointer-events:none;
+    color:#ffd54d;
 }

@@ -1,14 +1,8 @@
 const canvas =
-document.getElementById("canvas");
+document.getElementById("gameCanvas");
 
 const ctx =
 canvas.getContext("2d");
-
-const timeEl =
-document.getElementById("time");
-
-const countEl =
-document.getElementById("count");
 
 const startBtn =
 document.getElementById("startBtn");
@@ -16,381 +10,342 @@ document.getElementById("startBtn");
 const retryBtn =
 document.getElementById("retryBtn");
 
-const resultScreen =
-document.getElementById("resultScreen");
-
-const finalCount =
-document.getElementById("finalCount");
+const powerFill =
+document.getElementById("powerFill");
 
 const message =
 document.getElementById("message");
 
-let running = false;
+const timeEl =
+document.getElementById("time");
 
-let time = 30;
+const pizzaEl =
+document.getElementById("pizzas");
 
-let timer;
+const resultScreen =
+document.getElementById("resultScreen");
 
-let completed = 0;
+const resultCount =
+document.getElementById("resultCount");
 
-let stretches = 0;
+let running=false;
 
-let drag = false;
+let time=60;
 
-let pizzaX = 250;
-let pizzaY = 250;
+let pizzas=0;
 
-let radius = 60;
+let doughLevel=0;
 
-let tray = [];
+let power=0;
 
-let state = "idle";
+let chargeDir=1;
 
-function draw(){
+let charging=false;
+
+let state="idle";
+
+/*
+idle
+charge
+flying
+falling
+*/
+
+let dough={
+
+    x:450,
+    y:350,
+
+    radius:30,
+
+    vy:0
+};
+
+function resetDough(){
+
+    dough.x=450;
+    dough.y=350;
+    dough.vy=0;
+}
+
+function drawChef(){
+
+    ctx.font="120px serif";
+
+    ctx.fillText(
+        "👨‍🍳",
+        80,
+        400
+    );
+}
+
+function drawDough(){
+
+    ctx.beginPath();
+
+    ctx.arc(
+        dough.x,
+        dough.y,
+        dough.radius,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fillStyle="#f4d48a";
+    ctx.fill();
+
+    ctx.strokeStyle="#c98d35";
+    ctx.stroke();
+}
+
+function loop(){
 
     ctx.clearRect(
         0,
         0,
-        canvas.width,
-        canvas.height
+        900,
+        500
     );
 
-    drawTray();
+    drawChef();
 
-    if(state !== "fall"){
+    drawDough();
 
-        ctx.beginPath();
+    if(state==="flying"){
 
-        ctx.arc(
-            pizzaX,
-            pizzaY,
-            radius,
-            0,
-            Math.PI*2
-        );
+        dough.y += dough.vy;
 
-        ctx.fillStyle =
-        "#f6cf78";
+        dough.vy += 0.25;
 
-        ctx.fill();
+        if(dough.y < 40){
 
-        ctx.strokeStyle =
-        "#bb7b2b";
+            message.textContent=
+            "TOO STRONG!";
 
-        ctx.lineWidth=5;
+            state="idle";
 
-        ctx.stroke();
-    }
+            resetDough();
+        }
 
-    if(state === "fall"){
+        if(
+            dough.vy > 0 &&
+            dough.y > 120
+        ){
 
-        pizzaY += 12;
+            state="falling";
 
-        ctx.beginPath();
-
-        ctx.arc(
-            pizzaX,
-            pizzaY,
-            radius,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fillStyle =
-        "#f6cf78";
-
-        ctx.fill();
-
-        if(pizzaY > 650){
-
-            resetPizza();
-
-            state = "idle";
+            message.textContent=
+            "CLICK TO CATCH!";
         }
     }
 
-    requestAnimationFrame(draw);
-}
+    if(state==="falling"){
 
-function drawTray(){
+        dough.y += dough.vy;
 
-    ctx.fillStyle =
-    "#bdbdbd";
+        dough.vy += 0.25;
 
-    ctx.fillRect(
-        650,
-        50,
-        180,
-        380
+        if(dough.y>430){
+
+            message.textContent=
+            "MISS!";
+
+            doughLevel=0;
+
+            state="idle";
+
+            resetDough();
+        }
+    }
+
+    requestAnimationFrame(
+        loop
     );
-
-    tray.forEach((p)=>{
-
-        ctx.beginPath();
-
-        ctx.arc(
-            p.x,
-            p.y,
-            28,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fillStyle =
-        "#ffcf67";
-
-        ctx.fill();
-
-    });
-
-    ctx.fillStyle =
-    "#222";
-
-    ctx.font =
-    "18px Arial";
-
-    ctx.fillText(
-        "Completed",
-        690,
-        80
-    );
-}
-
-function resetPizza(){
-
-    stretches = 0;
-
-    pizzaX = 250;
-    pizzaY = 250;
-
-    radius = 60;
 }
 
 function startGame(){
 
-    if(running){
-        return;
-    }
+    running=true;
 
-    running = true;
+    pizzas=0;
 
-    completed = 0;
-    time = 30;
+    doughLevel=0;
 
-    countEl.textContent =
-    completed;
+    time=60;
 
-    timeEl.textContent =
-    time;
+    pizzaEl.textContent=0;
 
-    tray = [];
+    message.textContent=
+    "マウスを長押し！";
 
-    resetPizza();
-
-    timer =
     setInterval(()=>{
+
+        if(!running){
+            return;
+        }
 
         time--;
 
-        timeEl.textContent =
-        time;
+        timeEl.textContent=time;
 
-        if(time <= 10){
+        if(time<=10){
 
-            document.body.classList.add(
-                "warning"
-            );
-
-            message.textContent =
-            "急げ！あと" + time + "秒";
+            message.textContent=
+            "あと"+time+"秒!";
         }
 
-        if(time <= 0){
+        if(time<=0){
 
-            endGame();
+            running=false;
+
+            resultScreen.classList.remove(
+                "hidden"
+            );
+
+            resultCount.textContent=
+            pizzas;
         }
 
     },1000);
-}
-
-function endGame(){
-
-    running = false;
-
-    clearInterval(timer);
-
-    document.body.classList.remove(
-        "warning"
-    );
-
-    finalCount.textContent =
-    completed;
-
-    document.getElementById(
-        "gameArea"
-    ).classList.add(
-        "hidden"
-    );
-
-    resultScreen.classList.remove(
-        "hidden"
-    );
-}
-
-function judge(){
-
-    const r = Math.random();
-
-    if(r > 0.9){
-
-        showJudge("PERFECT");
-
-        completePizza();
-
-        return;
-    }
-
-    if(r > 0.2){
-
-        showJudge("GOOD");
-
-        completePizza();
-
-        return;
-    }
-
-    showJudge("MISS");
-
-    state = "fall";
-}
-
-function completePizza(){
-
-    completed++;
-
-    countEl.textContent =
-    completed;
-
-    tray.push({
-
-        x:700 +
-        (tray.length % 4) * 35,
-
-        y:130 +
-        Math.floor(
-            tray.length / 4
-        ) * 35
-    });
-
-    resetPizza();
-
-    message.textContent =
-    "次の生地だ！";
-}
-
-function showJudge(text){
-
-    const div =
-    document.createElement("div");
-
-    div.className =
-    "judge";
-
-    div.textContent =
-    text;
-
-    document.body.appendChild(
-        div
-    );
-
-    setTimeout(()=>{
-
-        div.remove();
-
-    },800);
 }
 
 startBtn.addEventListener(
     "click",
     ()=>{
 
-        startBtn.disabled = true;
-
-        message.textContent =
-        "生地を5回伸ばそう！";
+        startBtn.disabled=true;
 
         startGame();
     }
 );
 
-retryBtn.addEventListener(
-    "click",
-    ()=>{
-
-        resultScreen.classList.add(
-            "hidden"
-        );
-
-        document
-        .getElementById("gameArea")
-        .classList.remove(
-            "hidden"
-        );
-
-        startBtn.disabled = false;
-
-        startBtn.textContent =
-        "START";
-
-        message.textContent =
-        "STARTを押してゲーム開始！";
-    }
-);
-
-canvas.addEventListener(
-    "pointerdown",
-    ()=>{
-
-        drag = true;
-    }
-);
-
-canvas.addEventListener(
-    "pointerup",
-    ()=>{
-
-        drag = false;
-    }
-);
-
-canvas.addEventListener(
-    "pointerleave",
-    ()=>{
-
-        drag = false;
-    }
-);
-
-canvas.addEventListener(
-    "pointermove",
+document.addEventListener(
+    "mousedown",
     ()=>{
 
         if(
             !running ||
-            !drag
+            state!=="idle"
         ){
             return;
         }
 
-        radius += 6;
+        charging=true;
 
-        stretches++;
+        state="charge";
+    }
+);
 
-        if(stretches >= 5){
+document.addEventListener(
+    "mouseup",
+    ()=>{
 
-            judge();
+        if(
+            !charging ||
+            !running
+        ){
+            return;
+        }
+
+        charging=false;
+
+        if(power<25){
+
+            message.textContent=
+            "TOO WEAK";
+
+            state="idle";
+
+            power=0;
+
+            return;
+        }
+
+        dough.vy=
+        -(power/6);
+
+        state="flying";
+
+        power=0;
+    }
+);
+
+canvas.addEventListener(
+    "click",
+    ()=>{
+
+        if(state!=="falling"){
+            return;
+        }
+
+        if(
+            dough.y>180 &&
+            dough.y<260
+        ){
+
+            doughLevel++;
+
+            message.textContent=
+            "GOOD!";
+
+            resetDough();
+
+            state="idle";
+
+            if(doughLevel>=3){
+
+                pizzas++;
+
+                pizzaEl.textContent=
+                pizzas;
+
+                doughLevel=0;
+
+                message.textContent=
+                "PIZZA COMPLETE!";
+            }
+
+        }else{
+
+            doughLevel=0;
+
+            message.textContent=
+            "MISS!";
+
+            resetDough();
+
+            state="idle";
         }
     }
 );
 
-draw();
+setInterval(()=>{
+
+    if(!charging){
+        return;
+    }
+
+    power += chargeDir*4;
+
+    if(power>=100){
+        chargeDir=-1;
+    }
+
+    if(power<=0){
+        chargeDir=1;
+    }
+
+    powerFill.style.width=
+    power+"%";
+
+},20);
+
+retryBtn.addEventListener(
+    "click",
+    ()=>{
+
+        location.reload();
+    }
+);
+
+loop();
