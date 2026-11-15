@@ -1,120 +1,64 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizza Craft Classic</title>
-
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pizza Workshop Classic</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
+<div id="gameArea">
 
-    <header>
+    <header class="hud">
 
-        <h1>
-            PIZZA CRAFT CLASSIC
-        </h1>
+        <div class="box">
+            TIME
+            <span id="time">30</span>
+        </div>
 
-        <p class="subtitle">
-            〜 伝説の生地職人を目指せ！ 〜
-        </p>
+        <div class="box">
+            COMPLETED
+            <span id="count">0</span>
+        </div>
 
     </header>
 
-    <section class="intro-panel">
+    <div class="character">
 
-        <div class="chef-area">
+        <div class="chef">👨‍🍳</div>
 
-            <div class="chef">
-
-                <div class="hat"></div>
-
-                <div class="head">
-
-                    <div class="eyes">
-                        <span></span>
-                        <span></span>
-                    </div>
-
-                    <div class="nose"></div>
-
-                    <div class="mouth"></div>
-
-                </div>
-
-            </div>
-
-            <div class="speech">
-
-                <p id="message">
-                    ようこそ！
-                    STARTを押してピザ生地を伸ばそう！
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <section class="score-panel">
-
-        <div>
-            BEST SCORE
-        </div>
-
-        <div id="bestScore">
-            ---
-        </div>
-
-    </section>
-
-    <div class="hud">
-
-        <div class="hud-box">
-            TIME
-            <span id="time">
-                30
-            </span>
-        </div>
-
-        <div class="hud-box">
-            SCORE
-            <span id="score">
-                0
-            </span>
+        <div id="message">
+            STARTを押してゲーム開始！
         </div>
 
     </div>
 
     <button id="startBtn">
-        START GAME
+        START
     </button>
 
     <canvas
         id="canvas"
-        width="800"
-        height="500">
-    </canvas>
+        width="900"
+        height="500"></canvas>
 
-    <div class="instructions">
+</div>
 
-        <h2>HOW TO PLAY</h2>
+<div id="resultScreen" class="hidden">
 
-        <ul>
-            <li>STARTを押す</li>
-            <li>生地をドラッグして伸ばす</li>
-            <li>できるだけ大きく丸くする</li>
-            <li>30秒後に結果発表！</li>
-        </ul>
+    <h1>TIME UP!</h1>
 
-    </div>
+    <p>完成したピザ</p>
+
+    <div id="finalCount">0</div>
+
+    <button id="retryBtn">
+        RETRY
+    </button>
 
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>

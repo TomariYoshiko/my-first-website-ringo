@@ -1,64 +1,52 @@
 const canvas =
-    document.getElementById("canvas");
+document.getElementById("canvas");
 
 const ctx =
-    canvas.getContext("2d");
-
-const startBtn =
-    document.getElementById("startBtn");
-
-const scoreEl =
-    document.getElementById("score");
+canvas.getContext("2d");
 
 const timeEl =
-    document.getElementById("time");
+document.getElementById("time");
 
-const msgEl =
-    document.getElementById("message");
+const countEl =
+document.getElementById("count");
 
-const bestScoreEl =
-    document.getElementById("bestScore");
+const startBtn =
+document.getElementById("startBtn");
+
+const retryBtn =
+document.getElementById("retryBtn");
+
+const resultScreen =
+document.getElementById("resultScreen");
+
+const finalCount =
+document.getElementById("finalCount");
+
+const message =
+document.getElementById("message");
 
 let running = false;
 
-let radius = 70;
-let score = 0;
 let time = 30;
 
-let timer = null;
+let timer;
 
-let dragging = false;
+let completed = 0;
 
-const cx = canvas.width / 2;
-const cy = canvas.height / 2;
+let stretches = 0;
 
-const messages = [
-    "もっと大きく！",
-    "その調子だ！",
-    "いい仕事だ！",
-    "丸く伸ばそう！",
-    "あと少し！"
-];
+let drag = false;
 
-function loadBestScore(){
+let pizzaX = 250;
+let pizzaY = 250;
 
-    const best =
-        localStorage.getItem(
-            "pizzaBest"
-        );
+let radius = 60;
 
-    if(best){
-        bestScoreEl.textContent =
-            best;
-    }else{
-        bestScoreEl.textContent =
-            "---";
-    }
-}
+let tray = [];
 
-loadBestScore();
+let state = "idle";
 
-function drawDough(){
+function draw(){
 
     ctx.clearRect(
         0,
@@ -67,45 +55,116 @@ function drawDough(){
         canvas.height
     );
 
-    ctx.beginPath();
+    drawTray();
 
-    ctx.arc(
-        cx,
-        cy,
-        radius,
-        0,
-        Math.PI * 2
+    if(state !== "fall"){
+
+        ctx.beginPath();
+
+        ctx.arc(
+            pizzaX,
+            pizzaY,
+            radius,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+        "#f6cf78";
+
+        ctx.fill();
+
+        ctx.strokeStyle =
+        "#bb7b2b";
+
+        ctx.lineWidth=5;
+
+        ctx.stroke();
+    }
+
+    if(state === "fall"){
+
+        pizzaY += 12;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            pizzaX,
+            pizzaY,
+            radius,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+        "#f6cf78";
+
+        ctx.fill();
+
+        if(pizzaY > 650){
+
+            resetPizza();
+
+            state = "idle";
+        }
+    }
+
+    requestAnimationFrame(draw);
+}
+
+function drawTray(){
+
+    ctx.fillStyle =
+    "#bdbdbd";
+
+    ctx.fillRect(
+        650,
+        50,
+        180,
+        380
     );
 
-    ctx.fillStyle="#f4d37d";
-    ctx.fill();
+    tray.forEach((p)=>{
 
-    ctx.strokeStyle="#ba8336";
-    ctx.lineWidth=6;
-    ctx.stroke();
+        ctx.beginPath();
 
-    if(running){
-        requestAnimationFrame(
-            drawDough
+        ctx.arc(
+            p.x,
+            p.y,
+            28,
+            0,
+            Math.PI*2
         );
-    }
+
+        ctx.fillStyle =
+        "#ffcf67";
+
+        ctx.fill();
+
+    });
+
+    ctx.fillStyle =
+    "#222";
+
+    ctx.font =
+    "18px Arial";
+
+    ctx.fillText(
+        "Completed",
+        690,
+        80
+    );
 }
 
-function randomMessage(){
+function resetPizza(){
 
-    msgEl.textContent =
-        messages[
-            Math.floor(
-                Math.random() *
-                messages.length
-            )
-        ];
+    stretches = 0;
+
+    pizzaX = 250;
+    pizzaY = 250;
+
+    radius = 60;
 }
-
-startBtn.addEventListener(
-    "click",
-    startGame
-);
 
 function startGame(){
 
@@ -113,37 +172,41 @@ function startGame(){
         return;
     }
 
-    radius = 70;
-    score = 0;
-    time = 30;
-
     running = true;
 
-    startBtn.disabled = true;
+    completed = 0;
+    time = 30;
 
-    startBtn.textContent =
-        "PLAYING...";
+    countEl.textContent =
+    completed;
 
-    scoreEl.textContent = 0;
-    timeEl.textContent = 30;
+    timeEl.textContent =
+    time;
 
-    msgEl.textContent =
-        "ドラッグで生地を伸ばそう！";
+    tray = [];
 
-    drawDough();
+    resetPizza();
 
-    timer = setInterval(()=>{
+    timer =
+    setInterval(()=>{
 
         time--;
 
         timeEl.textContent =
-            time;
+        time;
 
-        if(time % 5 === 0){
-            randomMessage();
+        if(time <= 10){
+
+            document.body.classList.add(
+                "warning"
+            );
+
+            message.textContent =
+            "急げ！あと" + time + "秒";
         }
 
         if(time <= 0){
+
             endGame();
         }
 
@@ -156,84 +219,155 @@ function endGame(){
 
     clearInterval(timer);
 
-    const finalScore =
-        Math.round(radius * 2);
+    document.body.classList.remove(
+        "warning"
+    );
 
-    let rank = "";
+    finalCount.textContent =
+    completed;
 
-    if(finalScore >= 340){
+    document.getElementById(
+        "gameArea"
+    ).classList.add(
+        "hidden"
+    );
 
-        rank =
-            "PIZZA LEGEND";
-
-    }else if(finalScore >= 280){
-
-        rank =
-            "MASTER CHEF";
-
-    }else if(finalScore >= 220){
-
-        rank =
-            "EXPERT";
-
-    }else{
-
-        rank =
-            "BEGINNER";
-    }
-
-    msgEl.innerHTML =
-        `
-        SCORE : ${finalScore}
-        <br>
-        <span class="rank">
-        ${rank}
-        </span>
-        `;
-
-    scoreEl.textContent =
-        finalScore;
-
-    const best =
-        Number(
-            localStorage.getItem(
-                "pizzaBest"
-            ) || 0
-        );
-
-    if(finalScore > best){
-
-        localStorage.setItem(
-            "pizzaBest",
-            finalScore
-        );
-
-        loadBestScore();
-    }
-
-    startBtn.disabled = false;
-    startBtn.textContent =
-        "PLAY AGAIN";
+    resultScreen.classList.remove(
+        "hidden"
+    );
 }
+
+function judge(){
+
+    const r = Math.random();
+
+    if(r > 0.9){
+
+        showJudge("PERFECT");
+
+        completePizza();
+
+        return;
+    }
+
+    if(r > 0.2){
+
+        showJudge("GOOD");
+
+        completePizza();
+
+        return;
+    }
+
+    showJudge("MISS");
+
+    state = "fall";
+}
+
+function completePizza(){
+
+    completed++;
+
+    countEl.textContent =
+    completed;
+
+    tray.push({
+
+        x:700 +
+        (tray.length % 4) * 35,
+
+        y:130 +
+        Math.floor(
+            tray.length / 4
+        ) * 35
+    });
+
+    resetPizza();
+
+    message.textContent =
+    "次の生地だ！";
+}
+
+function showJudge(text){
+
+    const div =
+    document.createElement("div");
+
+    div.className =
+    "judge";
+
+    div.textContent =
+    text;
+
+    document.body.appendChild(
+        div
+    );
+
+    setTimeout(()=>{
+
+        div.remove();
+
+    },800);
+}
+
+startBtn.addEventListener(
+    "click",
+    ()=>{
+
+        startBtn.disabled = true;
+
+        message.textContent =
+        "生地を5回伸ばそう！";
+
+        startGame();
+    }
+);
+
+retryBtn.addEventListener(
+    "click",
+    ()=>{
+
+        resultScreen.classList.add(
+            "hidden"
+        );
+
+        document
+        .getElementById("gameArea")
+        .classList.remove(
+            "hidden"
+        );
+
+        startBtn.disabled = false;
+
+        startBtn.textContent =
+        "START";
+
+        message.textContent =
+        "STARTを押してゲーム開始！";
+    }
+);
 
 canvas.addEventListener(
     "pointerdown",
     ()=>{
-        dragging = true;
+
+        drag = true;
     }
 );
 
 canvas.addEventListener(
     "pointerup",
     ()=>{
-        dragging = false;
+
+        drag = false;
     }
 );
 
 canvas.addEventListener(
     "pointerleave",
     ()=>{
-        dragging = false;
+
+        drag = false;
     }
 );
 
@@ -243,20 +377,20 @@ canvas.addEventListener(
 
         if(
             !running ||
-            !dragging
+            !drag
         ){
             return;
         }
 
-        radius += 0.45;
+        radius += 6;
 
-        if(radius > 170){
-            radius = 170;
+        stretches++;
+
+        if(stretches >= 5){
+
+            judge();
         }
-
-        score++;
-
-        scoreEl.textContent =
-            score;
     }
 );
+
+draw();
