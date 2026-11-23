@@ -8,32 +8,30 @@
 </head>
 <body>
 
-<div class="hud">
+<div class="top-area">
 
-    <div>
+    <div class="hud-stat">
         TIME
         <span id="time">60</span>
     </div>
 
-    <div>
-        PIZZAS
-        <span id="pizzas">0</span>
+    <div class="message" id="message">
+        STARTを押そう！
     </div>
 
-</div>
+    <button id="startBtn">
+        START
+    </button>
 
-<div class="message" id="message">
-    STARTを押そう！
-</div>
+    <div class="power-area">
+        <div class="power-bar">
+            <div id="powerFill"></div>
+        </div>
+    </div>
 
-<button id="startBtn">
-    START
-</button>
-
-<div class="power-area">
-
-    <div class="power-bar">
-        <div id="powerFill"></div>
+    <div class="hud-stat">
+        PIZZAS
+        <span id="pizzas">0</span>
     </div>
 
 </div>
@@ -41,7 +39,7 @@
 <canvas
     id="gameCanvas"
     width="900"
-    height="500">
+    height="650">
 </canvas>
 
 <div id="resultScreen" class="hidden">

@@ -17,31 +17,56 @@ body{
         );
 }
 
-.hud{
+.top-area{
 
-    display:flex;
+    display:grid;
 
-    justify-content:space-around;
+    grid-template-columns:
+        minmax(70px,1fr)
+        minmax(120px,auto)
+        auto
+        minmax(140px,1fr)
+        minmax(70px,1fr);
 
-    padding:20px;
+    grid-template-areas:
+        "time message start power pizzas";
 
-    font-size:24px;
+    align-items:center;
+
+    gap:12px;
+
+    padding:8px 16px;
 }
 
-.hud span{
+.hud-stat{
+
+    font-size:20px;
+}
+
+.hud-stat:first-child{
+    grid-area:time;
+}
+
+.hud-stat:last-child{
+    grid-area:pizzas;
+}
+
+.hud-stat span{
 
     display:block;
 
     color:#ffd54d;
 
-    font-size:42px;
+    font-size:36px;
 }
 
 .message{
 
-    margin:10px;
+    grid-area:message;
 
-    font-size:24px;
+    margin:0;
+
+    font-size:18px;
 
     font-weight:bold;
 }
@@ -63,13 +88,20 @@ button{
     cursor:pointer;
 }
 
+#startBtn{
+
+    grid-area:start;
+
+    margin:0;
+}
+
 .power-area{
 
-    width:400px;
+    grid-area:power;
 
-    max-width:90%;
+    width:100%;
 
-    margin:0 auto 15px;
+    margin:0;
 }
 
 .power-bar{
@@ -102,9 +134,15 @@ canvas{
 
     background:#fff3c8;
 
-    width:90%;
+    display:block;
+
+    width:96%;
 
     max-width:900px;
+
+    height:auto;
+
+    margin:0 auto;
 
     border:5px solid white;
 
@@ -125,4 +163,50 @@ canvas{
     font-size:100px;
 
     color:#ffd54d;
+}
+
+@media (max-width:700px){
+
+    .top-area{
+
+        grid-template-columns:
+            minmax(0,1fr)
+            auto
+            minmax(0,1fr);
+
+        grid-template-areas:
+            "time . pizzas"
+            "message start power";
+
+        gap:6px 8px;
+
+        padding:8px 12px;
+    }
+
+    .hud-stat{
+        font-size:16px;
+    }
+
+    .hud-stat span{
+        font-size:28px;
+    }
+
+    .message{
+        font-size:clamp(12px, 3.8vw, 16px);
+        line-height:1.15;
+    }
+
+    #startBtn{
+        padding:8px 12px;
+        font-size:14px;
+    }
+
+    .power-area{
+        max-width:150px;
+        justify-self:center;
+    }
+
+    .power-bar{
+        height:18px;
+    }
 }
